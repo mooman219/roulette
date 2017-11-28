@@ -6,7 +6,7 @@ HTMLSelectElement.prototype.getSelectedValue = function () {
 class Widget {
     constructor(parent, title, body) {
         this.parent = parent;
-        this.html = `
+        this.parent.innerHTML = `
         <div class="card">
             <div class="card-header text-center">${title}</div>
             <div class="card-body">
@@ -16,18 +16,17 @@ class Widget {
                 </div>
             </div>
         </div>`;
-        this.show();
+        this.alerts = this.parent.querySelectorAll('div')[3];
+        this.body = this.parent.querySelectorAll('div')[4];
     }
     get show() {
         return () => {
-            this.parent.innerHTML = this.html;
-            this.alerts = this.parent.querySelectorAll('div')[3];
-            this.body = this.parent.querySelectorAll('div')[4];
+            this.parent.style.display = 'block';
         };
     }
     get hide() {
         return () => {
-            this.parent.innerHTML = '';
+            this.parent.style.display = 'none';
         };
     }
     get clearAlerts() {
@@ -117,6 +116,10 @@ class WidgetGame extends Widget {
         <table class="table table-form">
         <tbody>
             <tr>
+                <td><b>User ID</b></td>
+                <td><input type="number" class="form-control" readonly></td>
+            </tr>
+            <tr>
                 <td><b>Cash</b></td>
                 <td class="input-group">
                     <span class="input-group-addon">$</span>
@@ -166,12 +169,126 @@ class WidgetGame extends Widget {
         </table>
         `);
         this.elements = {
-            cash: this.body.querySelectorAll('input')[0],
-            bet: this.body.querySelectorAll('input')[1],
+            user: this.body.querySelectorAll('input')[0],
+            cash: this.body.querySelectorAll('input')[1],
+            bet: this.body.querySelectorAll('input')[2],
             spin: {
                 red: this.body.querySelectorAll('button')[0],
                 black: this.body.querySelectorAll('button')[1]
             }
+        };
+        this.wheel = {
+            rotationsTime: 4,
+            wheelSpinTime: 3,
+            ballSpinTime: 2,
+            numorder: [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26],
+            numred: [32, 19, 21, 25, 34, 27, 36, 30, 23, 5, 16, 1, 14, 9, 18, 7, 12, 3],
+            numblack: [15, 4, 2, 17, 6, 13, 11, 8, 10, 24, 33, 20, 31, 22, 29, 28, 35, 26],
+            numgreen: [0],
+            numberLoc: [],
+            transform: 'transform',
+            numbg: document.getElementsByClassName('pieContainer')[0],
+            ballbg: document.getElementsByClassName('ball')[0],
+            toppart: document.getElementsByClassName('topnodebox')[0],
+            rinner: document.getElementsByClassName('pieContainer')[0],
+        };
+        var temparc = 360 / this.wheel.numorder.length;
+        for (var i = 0; i < this.wheel.numorder.length; i++) {
+            this.wheel.numberLoc[this.wheel.numorder[i]] = [];
+            this.wheel.numberLoc[this.wheel.numorder[i]][0] = i * temparc;
+        }
+    }
+    get spinRandomRed() {
+        return () => {
+            var number = this.wheel.numred[Math.floor(Math.random() * this.wheel.numred.length)];
+            this.spinTo(number);
+        };
+    }
+    get spinRandomBlack() {
+        return () => {
+            var number = this.wheel.numblack[Math.floor(Math.random() * this.wheel.numblack.length)];
+            this.spinTo(number);
+        };
+    }
+    get spinTo() {
+        return (number) => {
+            var temp = this.wheel.numberLoc[number][0] + 4;
+            var backgroundAngle = Math.floor(Math.random() * 360 + 1);
+            var ballAngle = backgroundAngle + temp;
+
+            this.resetAnimation();
+            var self = this;
+            setTimeout(function () {
+                // Background rotation
+                self.bgrotateTo(backgroundAngle);
+
+                // Ball rotation
+                self.ballrotateTo(ballAngle);
+            }, 500);
+        };
+    }
+    get resetAnimation() {
+        console.log(this);
+        return () => {
+            this.wheel.ballbg.style['animation-play-state'] = 'running';
+            this.wheel.ballbg.style['animation'] = 'none';
+            this.wheel.numbg.style['animation-play-state'] = 'running';
+            this.wheel.numbg.style['animation'] = 'none';
+            this.wheel.toppart.style['animation-play-state'] = 'running';
+            this.wheel.toppart.style['animation'] = 'none';
+        };
+    }
+    get bgrotateTo() {
+        return (angle) => {
+            var dest = 360 * this.wheel.wheelSpinTime + angle;
+            var temptime = (this.wheel.rotationsTime * 1000 - 1000) / 1000 + 's';
+            $.keyframe.define({
+                name: "rotate",
+                from: {
+                    transform: "rotate(0deg)"
+                },
+                to: {
+                    transform: "rotate(" + dest + "deg)"
+                }
+            });
+
+            $(this.wheel.numbg).playKeyframe({
+                name: "rotate", // name of the keyframe you want to bind to the selected element
+                duration: temptime, // [optional, default: 0, in ms] how long you want it to last in milliseconds
+                timingFunction: "ease-in-out", // [optional, default: ease] specifies the speed curve of the animation
+                complete: function () { } //[optional]  Function fired after the animation is complete. If repeat is infinite, the function will be fired every time the animation is restarted.
+            });
+
+            $(this.wheel.toppart).playKeyframe({
+                name: "rotate", // name of the keyframe you want to bind to the selected element
+                duration: temptime, // [optional, default: 0, in ms] how long you want it to last in milliseconds
+                timingFunction: "ease-in-out", // [optional, default: ease] specifies the speed curve of the animation
+                complete: function () { } //[optional]  Function fired after the animation is complete. If repeat is infinite, the function will be fired every time the animation is restarted.
+            });
+        };
+    }
+    get ballrotateTo() {
+        return (angle) => {
+            var temptime = this.wheel.rotationsTime + 's';
+            var dest = -360 * this.wheel.ballSpinTime - (360 - angle);
+            $.keyframe.define({
+                name: "rotate2",
+                from: {
+                    transform: "rotate(0deg)"
+                },
+                to: {
+                    transform: "rotate(" + dest + "deg)"
+                }
+            });
+
+            $(this.wheel.ballbg).playKeyframe({
+                name: "rotate2", // name of the keyframe you want to bind to the selected element
+                duration: temptime, // [optional, default: 0, in ms] how long you want it to last in milliseconds
+                timingFunction: "ease-in-out", // [optional, default: ease] specifies the speed curve of the animation
+                complete: function () {
+                    console.log("Spin done.");
+                } //[optional]  Function fired after the animation is complete. If repeat is infinite, the function will be fired every time the animation is restarted.
+            });
         };
     }
     get validate() {
@@ -192,10 +309,13 @@ class WidgetGame extends Widget {
 class PageMain {
     constructor() {
         this.setup = new WidgetSetup(document.getElementById('Setup'));
-        this.game = new WidgetGame(document.getElementById('Game'));
         this.setup.elements.submit.onclick = this.performSetup;
+
+        this.game = new WidgetGame(document.getElementById('Game'));
         this.game.elements.spin.red.onclick = this.performSpinRed;
         this.game.elements.spin.black.onclick = this.performSpinBlack;
+        this.game.hide();
+
         this.stats = {
             user: 0,
             cash: 0,
@@ -212,20 +332,21 @@ class PageMain {
                     group: values.group
                 };
                 this.setup.hide();
+                this.game.show();
             }
         };
     }
     get performSpinRed() {
         return () => {
             if (this.game.validate()) {
-                randomRed();
+                this.game.spinRandomRed();
             }
         };
     }
     get performSpinBlack() {
         return () => {
             if (this.game.validate()) {
-                randomBlack();
+                this.game.spinRandomBlack();
             }
         };
     }
