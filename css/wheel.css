@@ -1,3 +1,12 @@
+.table-form {
+    margin-bottom: unset;
+}
+
+.table-form th, .table-form td {
+    vertical-align: unset;
+    border-top: unset;
+}
+
 .wheel > *,
 .wheel > ::before,
 .wheel > ::after {
