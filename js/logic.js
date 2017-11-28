@@ -30,19 +30,6 @@ class Animation {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 }
-class Local {
-    static log(user, group, cash, bet, pick, result) {
-        var entry = {
-            user: user,
-            group: group,
-            cash: cash,
-            bet: bet,
-            pick: pick,
-            result: result
-        }
-        console.log(entry);
-    }
-}
 class Widget {
     constructor(parent, title, body) {
         this.parent = parent;
@@ -75,6 +62,100 @@ class Widget {
     get addAlert() {
         return (type, message) => {
             this.alerts.innerHTML += `<div class="alert alert-${type} alert-dismissible" role="alert">${message}<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button></div>`;
+        }
+    }
+}
+class WidgetLog extends Widget {
+    constructor(parent) {
+        super(parent, 'Logs', `
+        <h4 class="card-title">Local log information.<button type="button" class="btn btn-danger btn-sm float-right">Purge logs</button></h4>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Time</th>
+                    <th scope="col">User ID</th>
+                    <th scope="col">Group</th>
+                    <th scope="col">Cash</th>
+                    <th scope="col">Bet</th>
+                    <th scope="col">Chosen Color</th>
+                    <th scope="col">Actual Color</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+        <button type="button" class="btn btn-primary">Download logs</button>
+        <button type="button" class="btn btn-secondary">View setup</button>`);
+        this.elements = {
+            table: this.body.querySelectorAll('table')[0],
+            body: this.body.querySelectorAll('tbody')[0],
+            purgeLogs: this.body.querySelectorAll('button')[0],
+            downloadLogs: this.body.querySelectorAll('button')[1],
+            viewSetup: this.body.querySelectorAll('button')[2],
+        };
+    }
+    get addEntry() {
+        return (user, group, cash, bet, pick, result) => {
+            var now = new Date();
+            var entry = {
+                date: now.toLocaleDateString(),
+                time: now.toLocaleTimeString(),
+                user: user,
+                group: group,
+                cash: cash,
+                bet: bet,
+                pick: pick,
+                result: result
+            }
+            this.appendRow(entry);
+            this.appendStorage(entry);
+        }
+    }
+    get loadEntries() {
+        return () => {
+            var entriesRaw = window.localStorage.getItem('log');
+            if (entriesRaw) {
+                var entries = JSON.parse(entriesRaw);
+                var self = this;
+                entries.forEach(function(entry) {
+                    self.appendRow(entry);
+                });
+            }
+        }
+    }
+    get clearEntries() {
+        return () => {
+            var tbody = document.createElement('tbody');
+            this.elements.table.replaceChild(tbody, this.elements.body);
+            this.elements.body = tbody;
+            window.localStorage.setItem('log', JSON.stringify([]));
+        }
+    }
+    get appendRow() {
+        return (entry) => {
+            var row = this.elements.body.insertRow(this.elements.body.rows.length);
+            row.insertCell(0).innerHTML = entry.date;
+            row.insertCell(1).innerHTML = entry.time;
+            row.insertCell(2).innerHTML = '#' + entry.user;
+            row.insertCell(3).innerHTML = entry.group;
+            row.insertCell(4).innerHTML = '$' + entry.cash;
+            row.insertCell(5).innerHTML = '$' + entry.bet;
+            row.insertCell(6).innerHTML = entry.pick;
+            row.insertCell(7).innerHTML = entry.result;
+            if (entry.pick === entry.result) {
+                row.className = 'table-success';
+            } else {
+                row.className = 'table-warning';
+            }
+        }
+    }
+    get appendStorage() {
+        return (entry) => {
+            var entriesRaw = window.localStorage.getItem('log');
+            var entries = entriesRaw ? JSON.parse(entriesRaw) : [];
+            entries.push(entry);
+            window.localStorage.setItem('log', JSON.stringify(entries));
         }
     }
 }
@@ -111,13 +192,17 @@ class WidgetSetup extends Widget {
                 <tr>
                     <td colspan="2"><button class="btn btn-block btn-primary" type="button">Start</button></td>
                 </tr>
+                <tr>
+                    <td colspan="2"><button class="btn btn-block btn-secondary" type="button">View Logs</button></td>
+                </tr>
             </tbody>
         </table>`);
         this.elements = {
             user: this.body.querySelectorAll('input')[0],
             cash: this.body.querySelectorAll('input')[1],
             group: this.body.querySelectorAll('select')[0],
-            submit: this.body.querySelectorAll('button')[0]
+            submit: this.body.querySelectorAll('button')[0],
+            viewLogs: this.body.querySelectorAll('button')[1],
         };
     }
     get validate() {
@@ -272,7 +357,7 @@ class WidgetGame extends Widget {
             Animation.rotate(this.elements.numbersBackground, 0);
             Animation.rotate(this.elements.handle, 0);
             Animation.rotate(this.elements.ballBackground, 0);
-            await Animation.sleep(500);
+            await Animation.sleep(300);
             // Set instance variables
             var wheelTime = 2;
             var ballTime = 3;
@@ -332,11 +417,18 @@ class PageMain {
     constructor() {
         this.setup = new WidgetSetup(document.getElementById('Setup'));
         this.setup.elements.submit.onclick = this.performSetup;
+        this.setup.elements.viewLogs.onclick = this.viewLogs;
 
         this.game = new WidgetGame(document.getElementById('Game'));
         this.game.elements.spin.red.onclick = this.pickRed;
         this.game.elements.spin.black.onclick = this.pickBlack;
         this.game.hide();
+
+        this.logs = new WidgetLog(document.getElementById('Log'));
+        this.logs.elements.purgeLogs.onclick = this.logs.clearEntries;
+        this.logs.elements.viewSetup.onclick = this.viewSetup;
+        this.logs.loadEntries();
+        this.logs.hide();
     }
     get performSetup() {
         return () => {
@@ -347,6 +439,18 @@ class PageMain {
                 this.setup.hide();
                 this.game.show();
             }
+        };
+    }
+    get viewLogs() {
+        return () => {
+            this.setup.hide();
+            this.logs.show();
+        };
+    }
+    get viewSetup() {
+        return () => {
+            this.setup.show();
+            this.logs.hide();
         };
     }
     get pickRed() {
@@ -371,8 +475,9 @@ class PageMain {
                     this.game.addCash(-stats.bet);
                     this.game.addAlert('warning', 'Try again. Lost $' + stats.bet + '.');
                 }
+                this.logs.addEntry(stats.user, this.setup.getValues().group, stats.cash, stats.bet, pick, result)
             }
         };
     }
 }
-new PageMain();
+var debug = new PageMain();
