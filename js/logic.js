@@ -298,7 +298,7 @@ class WidgetGame extends Widget {
             var valid = true;
             var stats = this.getValues();
             if (this.elements.cash.value === '' || stats.cash <= 0) {
-                this.addAlert('danger', 'You have no money to bet.');
+                this.addAlert('danger', 'You have no money left to bet.');
                 valid = false;
             } else if (this.elements.bet.value === '') {
                 this.addAlert('danger', 'Please enter a bet.');
