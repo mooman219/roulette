@@ -38,9 +38,7 @@ class Widget {
             <div class="card-header text-center">${title}</div>
             <div class="card-body">
                 <div></div>
-                <div>
-                    ${body}
-                </div>
+                <div>${body}</div>
             </div>
         </div>`;
         this.alerts = this.parent.querySelectorAll('div')[3];
@@ -208,67 +206,61 @@ class WidgetGame extends Widget {
             spin: {
                 red: this.body.querySelectorAll('button')[0],
                 black: this.body.querySelectorAll('button')[1]
-            }
+            },
+            numbersBackground: this.body.getElementsByClassName('pieContainer')[0],
+            ballBackground: this.body.getElementsByClassName('ball')[0],
+            handle: this.body.getElementsByClassName('topnodebox')[0],
         };
         this.wheel = {
-            numorder: [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26],
-            numred: [32, 19, 21, 25, 34, 27, 36, 30, 23, 5, 16, 1, 14, 9, 18, 7, 12, 3],
-            numblack: [15, 4, 2, 17, 6, 13, 11, 8, 10, 24, 33, 20, 31, 22, 29, 28, 35, 26],
-            numgreen: [0],
-            numberLoc: [],
-            numbg: document.getElementsByClassName('pieContainer')[0],
-            ballbg: document.getElementsByClassName('ball')[0],
-            toppart: document.getElementsByClassName('topnodebox')[0],
-            rinner: document.getElementsByClassName('pieContainer')[0],
+            order: [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26],
+            red: [32, 19, 21, 25, 34, 27, 36, 30, 23, 5, 16, 1, 14, 9, 18, 7, 12, 3],
+            black: [15, 4, 2, 17, 6, 13, 11, 8, 10, 24, 33, 20, 31, 22, 29, 28, 35, 26],
+            locations: [],
         };
-        var temparc = 360 / this.wheel.numorder.length;
-        for (var i = 0; i < this.wheel.numorder.length; i++) {
-            this.wheel.numberLoc[this.wheel.numorder[i]] = [];
-            this.wheel.numberLoc[this.wheel.numorder[i]][0] = i * temparc;
+        var temparc = 360 / this.wheel.order.length;
+        for (var i = 0; i < this.wheel.order.length; i++) {
+            this.wheel.locations[this.wheel.order[i]] = [];
+            this.wheel.locations[this.wheel.order[i]][0] = i * temparc;
         }
     }
     get spinRandomRed() {
         return () => {
-            var number = this.wheel.numred[Math.floor(Math.random() * this.wheel.numred.length)];
+            var number = this.wheel.red[Math.floor(Math.random() * this.wheel.red.length)];
             this.spinTo(number);
         };
     }
     get spinRandomBlack() {
         return () => {
-            var number = this.wheel.numblack[Math.floor(Math.random() * this.wheel.numblack.length)];
-            this.spinTo(number);
-        };
-    }
-    get lockUi() {
-        return () => {
-            var number = this.wheel.numblack[Math.floor(Math.random() * this.wheel.numblack.length)];
-            this.spinTo(number);
-        };
-    }
-    get unlockUi() {
-        return () => {
-            var number = this.wheel.numblack[Math.floor(Math.random() * this.wheel.numblack.length)];
+            var number = this.wheel.black[Math.floor(Math.random() * this.wheel.black.length)];
             this.spinTo(number);
         };
     }
     get spinTo() {
         return async (number) => {
+            // Lock the UI
+            this.elements.bet.readOnly = true;
+            this.elements.spin.red.disabled = true;
+            this.elements.spin.black.disabled = true;
             // Reset the animation
-            Animation.rotate(this.wheel.numbg, 0);
-            Animation.rotate(this.wheel.toppart, 0);
-            Animation.rotate(this.wheel.ballbg, 0);
+            Animation.rotate(this.elements.numbersBackground, 0);
+            Animation.rotate(this.elements.handle, 0);
+            Animation.rotate(this.elements.ballBackground, 0);
             await Animation.sleep(500);
             // Set instance variables
-            var temp = this.wheel.numberLoc[number][0] + 4;
+            var temp = this.wheel.locations[number][0] + 4;
             var backgroundAngle = Math.floor(Math.random() * 360 + 1);
             var backgroundDest = 360 * 3 + backgroundAngle;
             var ballAngle = backgroundAngle + temp;
             var ballDest = -360 * 3 - (360 - ballAngle);
             // Apply the animation
-            Animation.rotate(this.wheel.numbg, backgroundDest, 3);
-            Animation.rotate(this.wheel.toppart, backgroundDest, 3);
-            Animation.rotate(this.wheel.ballbg, ballDest, 3);
-            await Animation.sleep(3000);
+            Animation.rotate(this.elements.numbersBackground, backgroundDest, 3);
+            Animation.rotate(this.elements.handle, backgroundDest, 3);
+            Animation.rotate(this.elements.ballBackground, ballDest, 3);
+            await Animation.sleep(3500);
+            // Unlock the UI
+            this.elements.bet.readOnly = false;
+            this.elements.spin.red.disabled = false;
+            this.elements.spin.black.disabled = false;
         };
     }
     get validate() {
