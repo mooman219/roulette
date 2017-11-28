@@ -6,13 +6,13 @@ HTMLSelectElement.prototype.getSelectedValue = function () {
 class Animation {
     static addProperty(element, key, value) {
         var apis = ['Webkit', 'Moz', 'O', 'ms', 'Khtml', ''];
-        apis.forEach(function(api){
+        apis.forEach(function (api) {
             element.style[api + key] = value;
         });
     }
     static removeProperty(element, key) {
         var apis = ['Webkit', 'Moz', 'O', 'ms', 'Khtml', ''];
-        apis.forEach(function(api){
+        apis.forEach(function (api) {
             element.style.removeProperty(api + key);
         });
     }
@@ -28,6 +28,19 @@ class Animation {
     }
     static sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
+    }
+}
+class Local {
+    static log(user, group, cash, bet, pick, result) {
+        var entry = {
+            user: user,
+            group: group,
+            cash: cash,
+            bet: bet,
+            pick: pick,
+            result: result
+        }
+        console.log(entry);
     }
 }
 class Widget {
@@ -111,17 +124,18 @@ class WidgetSetup extends Widget {
         return () => {
             this.clearAlerts();
             var valid = true;
+            var stats = this.getValues();
             if (this.elements.user.value === '') {
                 this.addAlert('danger', 'Please enter a user id.');
                 valid = false;
-            } else if (this.elements.user.value < 0) {
+            } else if (stats.user < 0) {
                 this.addAlert('danger', 'Please enter a positive user id.');
                 valid = false;
             }
             if (this.elements.cash.value === '') {
                 this.addAlert('danger', 'Please enter a cash amount.');
                 valid = false;
-            } else if (this.elements.cash.value < 0) {
+            } else if (stats.cash < 0) {
                 this.addAlert('danger', 'Please enter a positive cash amount.');
                 valid = false;
             }
@@ -131,8 +145,8 @@ class WidgetSetup extends Widget {
     get getValues() {
         return () => {
             return {
-                user: this.elements.user.value,
-                cash: this.elements.cash.value,
+                user: Number(this.elements.user.value),
+                cash: Number(this.elements.cash.value),
                 group: this.elements.group.getSelectedValue(),
             };
         }
@@ -219,20 +233,33 @@ class WidgetGame extends Widget {
         };
         var temparc = 360 / this.wheel.order.length;
         for (var i = 0; i < this.wheel.order.length; i++) {
-            this.wheel.locations[this.wheel.order[i]] = [];
-            this.wheel.locations[this.wheel.order[i]][0] = i * temparc;
+            this.wheel.locations[this.wheel.order[i]] = i * temparc;
         }
     }
-    get spinRandomRed() {
-        return () => {
-            var number = this.wheel.red[Math.floor(Math.random() * this.wheel.red.length)];
-            this.spinTo(number);
+    get spinRandom() {
+        return async () => {
+            var number = this.wheel.order[Math.floor(Math.random() * this.wheel.order.length)];
+            await this.spinTo(number);
+            if (this.wheel.red.includes(number)) {
+                return 'red';
+            } else if (this.wheel.black.includes(number)) {
+                return 'black';
+            }
+            return 'green';
         };
     }
-    get spinRandomBlack() {
-        return () => {
+    get spinRed() {
+        return async () => {
+            var number = this.wheel.red[Math.floor(Math.random() * this.wheel.red.length)];
+            await this.spinTo(number);
+            return 'red'
+        };
+    }
+    get spinBlack() {
+        return async () => {
             var number = this.wheel.black[Math.floor(Math.random() * this.wheel.black.length)];
-            this.spinTo(number);
+            await this.spinTo(number);
+            return 'black'
         };
     }
     get spinTo() {
@@ -247,15 +274,17 @@ class WidgetGame extends Widget {
             Animation.rotate(this.elements.ballBackground, 0);
             await Animation.sleep(500);
             // Set instance variables
-            var temp = this.wheel.locations[number][0] + 4;
+            var wheelTime = 2;
+            var ballTime = 3;
+            var temp = this.wheel.locations[number] + 4;
             var backgroundAngle = Math.floor(Math.random() * 360 + 1);
-            var backgroundDest = 360 * 3 + backgroundAngle;
+            var backgroundDest = 360 * wheelTime + backgroundAngle;
             var ballAngle = backgroundAngle + temp;
-            var ballDest = -360 * 3 - (360 - ballAngle);
+            var ballDest = -360 * ballTime - (360 - ballAngle);
             // Apply the animation
-            Animation.rotate(this.elements.numbersBackground, backgroundDest, 3);
-            Animation.rotate(this.elements.handle, backgroundDest, 3);
-            Animation.rotate(this.elements.ballBackground, ballDest, 3);
+            Animation.rotate(this.elements.numbersBackground, backgroundDest, wheelTime);
+            Animation.rotate(this.elements.handle, backgroundDest, wheelTime);
+            Animation.rotate(this.elements.ballBackground, ballDest, ballTime);
             await Animation.sleep(3500);
             // Unlock the UI
             this.elements.bet.readOnly = false;
@@ -267,21 +296,36 @@ class WidgetGame extends Widget {
         return () => {
             this.clearAlerts();
             var valid = true;
-            if (this.elements.cash.value === '' || this.elements.cash.value <= 0) {
+            var stats = this.getValues();
+            if (this.elements.cash.value === '' || stats.cash <= 0) {
                 this.addAlert('danger', 'You have no money to bet.');
                 valid = false;
             } else if (this.elements.bet.value === '') {
                 this.addAlert('danger', 'Please enter a bet.');
                 valid = false;
-            } else if (this.elements.bet.value < 0) {
+            } else if (stats.bet < 0) {
                 this.addAlert('danger', 'Please enter a positive bet.');
                 valid = false;
-            } else if (this.elements.cash.value < this.elements.bet.value) {
+            } else if (stats.cash < stats.bet) {
                 this.addAlert('danger', 'You do not have enough money to make that bet.');
                 valid = false;
             }
             return valid;
         };
+    }
+    get addCash() {
+        return (cash) => {
+            this.elements.cash.value = Number(this.elements.cash.value) + cash;
+        }
+    }
+    get getValues() {
+        return () => {
+            return {
+                user: Number(this.elements.user.value),
+                cash: Number(this.elements.cash.value),
+                bet: Number(this.elements.bet.value),
+            };
+        }
     }
 }
 class PageMain {
@@ -290,43 +334,43 @@ class PageMain {
         this.setup.elements.submit.onclick = this.performSetup;
 
         this.game = new WidgetGame(document.getElementById('Game'));
-        this.game.elements.spin.red.onclick = this.performSpinRed;
-        this.game.elements.spin.black.onclick = this.performSpinBlack;
+        this.game.elements.spin.red.onclick = this.pickRed;
+        this.game.elements.spin.black.onclick = this.pickBlack;
         this.game.hide();
-
-        this.stats = {
-            user: 0,
-            cash: 0,
-            group: 0
-        };
     }
     get performSetup() {
         return () => {
             if (this.setup.validate()) {
-                var values = this.setup.getValues();
-                this.stats = {
-                    user: values.user,
-                    cash: values.cash,
-                    group: values.group
-                };
-                this.game.elements.user.value = this.stats.user;
-                this.game.elements.cash.value = this.stats.cash;
+                var stats = this.setup.getValues();
+                this.game.elements.user.value = stats.user;
+                this.game.elements.cash.value = stats.cash;
                 this.setup.hide();
                 this.game.show();
             }
         };
     }
-    get performSpinRed() {
+    get pickRed() {
         return () => {
-            if (this.game.validate()) {
-                this.game.spinRandomRed();
-            }
+            this.performSpin('red');
         };
     }
-    get performSpinBlack() {
+    get pickBlack() {
         return () => {
+            this.performSpin('black');
+        };
+    }
+    get performSpin() {
+        return async (pick) => {
             if (this.game.validate()) {
-                this.game.spinRandomBlack();
+                var stats = this.game.getValues();
+                var result = await this.game.spinRandom();
+                if (result === pick) {
+                    this.game.addCash(stats.bet);
+                    this.game.addAlert('success', "You've won! Gained $" + stats.bet + ".");
+                } else {
+                    this.game.addCash(-stats.bet);
+                    this.game.addAlert('warning', 'Try again. Lost $' + stats.bet + '.');
+                }
             }
         };
     }
