@@ -267,11 +267,17 @@ class WidgetGame extends Widget {
         return () => {
             this.clearAlerts();
             var valid = true;
-            if (this.elements.bet.value === '') {
+            if (this.elements.cash.value === '' || this.elements.cash.value <= 0) {
+                this.addAlert('danger', 'You have no money to bet.');
+                valid = false;
+            } else if (this.elements.bet.value === '') {
                 this.addAlert('danger', 'Please enter a bet.');
                 valid = false;
             } else if (this.elements.bet.value < 0) {
                 this.addAlert('danger', 'Please enter a positive bet.');
+                valid = false;
+            } else if (this.elements.cash.value < this.elements.bet.value) {
+                this.addAlert('danger', 'You do not have enough money to make that bet.');
                 valid = false;
             }
             return valid;
