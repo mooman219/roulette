@@ -1,3 +1,7 @@
+.container {
+    margin-top: 5%;
+}
+
 .table-form {
     margin-bottom: unset;
 }
@@ -11,6 +15,7 @@
 .wheel > ::before,
 .wheel > ::after {
     box-sizing: unset;
+    overflow: hidden;
 }
 
 .pieBackground {

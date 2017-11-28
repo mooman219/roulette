@@ -3,6 +3,33 @@
 HTMLSelectElement.prototype.getSelectedValue = function () {
     return this.options[this.selectedIndex].value;
 }
+class Animation {
+    static addProperty(element, key, value) {
+        var apis = ['Webkit', 'Moz', 'O', 'ms', 'Khtml', ''];
+        apis.forEach(function(api){
+            element.style[api + key] = value;
+        });
+    }
+    static removeProperty(element, key) {
+        var apis = ['Webkit', 'Moz', 'O', 'ms', 'Khtml', ''];
+        apis.forEach(function(api){
+            element.style.removeProperty(api + key);
+        });
+    }
+    static rotate(element, angle, duration) {
+        Animation.addProperty(element, 'transform', 'rotate(' + angle + 'deg)');
+        if (duration) {
+            Animation.addProperty(element, 'transition-timing-function', 'ease-in-out');
+            Animation.addProperty(element, 'transition-duration', duration + 's');
+        } else {
+            Animation.removeProperty(element, 'transition-timing-function');
+            Animation.removeProperty(element, 'transition-duration');
+        }
+    }
+    static sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+}
 class Widget {
     constructor(parent, title, body) {
         this.parent = parent;
@@ -48,7 +75,10 @@ class WidgetSetup extends Widget {
             <tbody>
                 <tr>
                     <td><b>User ID</b></td>
-                    <td><input type="number" class="form-control"></td>
+                    <td class="input-group">
+                        <span class="input-group-addon">#</span>
+                        <input type="number" class="form-control">
+                    </td>
                 </tr>
                 <tr>
                     <td><b>Starting Cash</b></td>
@@ -117,7 +147,10 @@ class WidgetGame extends Widget {
         <tbody>
             <tr>
                 <td><b>User ID</b></td>
-                <td><input type="number" class="form-control" readonly></td>
+                <td class="input-group">
+                    <span class="input-group-addon">#</span>
+                    <input type="number" class="form-control" readonly>
+                </td>
             </tr>
             <tr>
                 <td><b>Cash</b></td>
@@ -135,7 +168,7 @@ class WidgetGame extends Widget {
                             </div>
                             <div class="platebg"></div>
                             <div class="platetop"></div>
-                            <div id="toppart" class="topnodebox">
+                            <div class="topnodebox">
                                 <div class="silvernode"></div>
                                 <div class="topnode silverbg"></div>
                                 <span class="top silverbg"></span>
@@ -143,7 +176,7 @@ class WidgetGame extends Widget {
                                 <span class="down silverbg"></span>
                                 <span class="left silverbg"></span>
                             </div>
-                            <div id="rcircle" class="pieContainer">
+                            <div class="pieContainer">
                                 <div class="pieBackground"></div>
                                 <div class="hold" id="rSlice0" style="transform: rotate(0deg);"><div class="num">0</div><div class="pie greenbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice1" style="transform: rotate(9.72973deg);"><div class="num">32</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice2" style="transform: rotate(19.4595deg);"><div class="num">15</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice3" style="transform: rotate(29.1892deg);"><div class="num">19</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice4" style="transform: rotate(38.9189deg);"><div class="num">4</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice5" style="transform: rotate(48.6486deg);"><div class="num">21</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice6" style="transform: rotate(58.3784deg);"><div class="num">2</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice7" style="transform: rotate(68.1081deg);"><div class="num">25</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice8" style="transform: rotate(77.8378deg);"><div class="num">17</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice9" style="transform: rotate(87.5676deg);"><div class="num">34</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice10" style="transform: rotate(97.2973deg);"><div class="num">6</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice11" style="transform: rotate(107.027deg);"><div class="num">27</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice12" style="transform: rotate(116.757deg);"><div class="num">13</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice13" style="transform: rotate(126.486deg);"><div class="num">36</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice14" style="transform: rotate(136.216deg);"><div class="num">11</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice15" style="transform: rotate(145.946deg);"><div class="num">30</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice16" style="transform: rotate(155.676deg);"><div class="num">8</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice17" style="transform: rotate(165.405deg);"><div class="num">23</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice18" style="transform: rotate(175.135deg);"><div class="num">10</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice19" style="transform: rotate(184.865deg);"><div class="num">5</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice20" style="transform: rotate(194.595deg);"><div class="num">24</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice21" style="transform: rotate(204.324deg);"><div class="num">16</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice22" style="transform: rotate(214.054deg);"><div class="num">33</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice23" style="transform: rotate(223.784deg);"><div class="num">1</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice24" style="transform: rotate(233.514deg);"><div class="num">20</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice25" style="transform: rotate(243.243deg);"><div class="num">14</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice26" style="transform: rotate(252.973deg);"><div class="num">31</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice27" style="transform: rotate(262.703deg);"><div class="num">9</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice28" style="transform: rotate(272.432deg);"><div class="num">22</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice29" style="transform: rotate(282.162deg);"><div class="num">18</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice30" style="transform: rotate(291.892deg);"><div class="num">29</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice31" style="transform: rotate(301.622deg);"><div class="num">7</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice32" style="transform: rotate(311.351deg);"><div class="num">28</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice33" style="transform: rotate(321.081deg);"><div class="num">12</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice34" style="transform: rotate(330.811deg);"><div class="num">35</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice35" style="transform: rotate(340.541deg);"><div class="num">3</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice36" style="transform: rotate(350.27deg);"><div class="num">26</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div>
                             </div>
@@ -178,15 +211,11 @@ class WidgetGame extends Widget {
             }
         };
         this.wheel = {
-            rotationsTime: 4,
-            wheelSpinTime: 3,
-            ballSpinTime: 2,
             numorder: [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26],
             numred: [32, 19, 21, 25, 34, 27, 36, 30, 23, 5, 16, 1, 14, 9, 18, 7, 12, 3],
             numblack: [15, 4, 2, 17, 6, 13, 11, 8, 10, 24, 33, 20, 31, 22, 29, 28, 35, 26],
             numgreen: [0],
             numberLoc: [],
-            transform: 'transform',
             numbg: document.getElementsByClassName('pieContainer')[0],
             ballbg: document.getElementsByClassName('ball')[0],
             toppart: document.getElementsByClassName('topnodebox')[0],
@@ -210,85 +239,36 @@ class WidgetGame extends Widget {
             this.spinTo(number);
         };
     }
+    get lockUi() {
+        return () => {
+            var number = this.wheel.numblack[Math.floor(Math.random() * this.wheel.numblack.length)];
+            this.spinTo(number);
+        };
+    }
+    get unlockUi() {
+        return () => {
+            var number = this.wheel.numblack[Math.floor(Math.random() * this.wheel.numblack.length)];
+            this.spinTo(number);
+        };
+    }
     get spinTo() {
-        return (number) => {
+        return async (number) => {
+            // Reset the animation
+            Animation.rotate(this.wheel.numbg, 0);
+            Animation.rotate(this.wheel.toppart, 0);
+            Animation.rotate(this.wheel.ballbg, 0);
+            await Animation.sleep(500);
+            // Set instance variables
             var temp = this.wheel.numberLoc[number][0] + 4;
             var backgroundAngle = Math.floor(Math.random() * 360 + 1);
+            var backgroundDest = 360 * 3 + backgroundAngle;
             var ballAngle = backgroundAngle + temp;
-
-            this.resetAnimation();
-            var self = this;
-            setTimeout(function () {
-                // Background rotation
-                self.bgrotateTo(backgroundAngle);
-
-                // Ball rotation
-                self.ballrotateTo(ballAngle);
-            }, 500);
-        };
-    }
-    get resetAnimation() {
-        console.log(this);
-        return () => {
-            this.wheel.ballbg.style['animation-play-state'] = 'running';
-            this.wheel.ballbg.style['animation'] = 'none';
-            this.wheel.numbg.style['animation-play-state'] = 'running';
-            this.wheel.numbg.style['animation'] = 'none';
-            this.wheel.toppart.style['animation-play-state'] = 'running';
-            this.wheel.toppart.style['animation'] = 'none';
-        };
-    }
-    get bgrotateTo() {
-        return (angle) => {
-            var dest = 360 * this.wheel.wheelSpinTime + angle;
-            var temptime = (this.wheel.rotationsTime * 1000 - 1000) / 1000 + 's';
-            $.keyframe.define({
-                name: "rotate",
-                from: {
-                    transform: "rotate(0deg)"
-                },
-                to: {
-                    transform: "rotate(" + dest + "deg)"
-                }
-            });
-
-            $(this.wheel.numbg).playKeyframe({
-                name: "rotate", // name of the keyframe you want to bind to the selected element
-                duration: temptime, // [optional, default: 0, in ms] how long you want it to last in milliseconds
-                timingFunction: "ease-in-out", // [optional, default: ease] specifies the speed curve of the animation
-                complete: function () { } //[optional]  Function fired after the animation is complete. If repeat is infinite, the function will be fired every time the animation is restarted.
-            });
-
-            $(this.wheel.toppart).playKeyframe({
-                name: "rotate", // name of the keyframe you want to bind to the selected element
-                duration: temptime, // [optional, default: 0, in ms] how long you want it to last in milliseconds
-                timingFunction: "ease-in-out", // [optional, default: ease] specifies the speed curve of the animation
-                complete: function () { } //[optional]  Function fired after the animation is complete. If repeat is infinite, the function will be fired every time the animation is restarted.
-            });
-        };
-    }
-    get ballrotateTo() {
-        return (angle) => {
-            var temptime = this.wheel.rotationsTime + 's';
-            var dest = -360 * this.wheel.ballSpinTime - (360 - angle);
-            $.keyframe.define({
-                name: "rotate2",
-                from: {
-                    transform: "rotate(0deg)"
-                },
-                to: {
-                    transform: "rotate(" + dest + "deg)"
-                }
-            });
-
-            $(this.wheel.ballbg).playKeyframe({
-                name: "rotate2", // name of the keyframe you want to bind to the selected element
-                duration: temptime, // [optional, default: 0, in ms] how long you want it to last in milliseconds
-                timingFunction: "ease-in-out", // [optional, default: ease] specifies the speed curve of the animation
-                complete: function () {
-                    console.log("Spin done.");
-                } //[optional]  Function fired after the animation is complete. If repeat is infinite, the function will be fired every time the animation is restarted.
-            });
+            var ballDest = -360 * 3 - (360 - ballAngle);
+            // Apply the animation
+            Animation.rotate(this.wheel.numbg, backgroundDest, 3);
+            Animation.rotate(this.wheel.toppart, backgroundDest, 3);
+            Animation.rotate(this.wheel.ballbg, ballDest, 3);
+            await Animation.sleep(3000);
         };
     }
     get validate() {
@@ -331,6 +311,8 @@ class PageMain {
                     cash: values.cash,
                     group: values.group
                 };
+                this.game.elements.user.value = this.stats.user;
+                this.game.elements.cash.value = this.stats.cash;
                 this.setup.hide();
                 this.game.show();
             }
