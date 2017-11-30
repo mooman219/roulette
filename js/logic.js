@@ -26,8 +26,18 @@ class Animation {
             Animation.removeProperty(element, 'transition-duration');
         }
     }
+}
+class Utility {
     static sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    static download(filename, text) {
+        var pom = document.createElement('a');
+        pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        pom.setAttribute('download', filename);
+        var event = document.createEvent('MouseEvents');
+        event.initEvent('click', true, true);
+        pom.dispatchEvent(event);
     }
 }
 class Widget {
@@ -118,7 +128,7 @@ class WidgetLog extends Widget {
             if (entriesRaw) {
                 var entries = JSON.parse(entriesRaw);
                 var self = this;
-                entries.forEach(function(entry) {
+                entries.forEach(function (entry) {
                     self.appendRow(entry);
                 });
             }
@@ -131,6 +141,19 @@ class WidgetLog extends Widget {
             this.elements.body = tbody;
             window.localStorage.setItem('log', JSON.stringify([]));
         }
+    }
+    get downloadEntries() {
+        return () => {
+            var entriesRaw = window.localStorage.getItem('log');
+            var output = 'Date,Time,User ID,Group,Cash,Bet,Chosen Color,Actual Color\n'
+            if (entriesRaw) {
+                var entries = JSON.parse(entriesRaw);
+                entries.forEach(function (entry) {
+                    output += `${entry.date},${entry.time},${entry.user},${entry.group},${entry.cash},${entry.bet},${entry.pick},${entry.result}\n`
+                });
+            }
+            Utility.download('log.csv', output);
+        };
     }
     get appendRow() {
         return (entry) => {
@@ -183,9 +206,9 @@ class WidgetSetup extends Widget {
                     <td><b>Group</b></td>
                     <td>
                         <select class="form-control">
-                            <option selected value="1">Group A</option>
-                            <option value="2">Group B</option>
-                            <option value="3">Group C</option>
+                            <option selected value="A">Group A</option>
+                            <option value="B">Group B</option>
+                            <option value="C">Group C</option>
                         </select>
                     </td>
                 </tr>
@@ -193,7 +216,7 @@ class WidgetSetup extends Widget {
                     <td colspan="2"><button class="btn btn-block btn-primary" type="button">Start</button></td>
                 </tr>
                 <tr>
-                    <td colspan="2"><button class="btn btn-block btn-secondary" type="button">View Logs</button></td>
+                    <td colspan="2"><button class="btn btn-block btn-secondary" type="button">View logs</button></td>
                 </tr>
             </tbody>
         </table>`);
@@ -357,7 +380,7 @@ class WidgetGame extends Widget {
             Animation.rotate(this.elements.numbersBackground, 0);
             Animation.rotate(this.elements.handle, 0);
             Animation.rotate(this.elements.ballBackground, 0);
-            await Animation.sleep(300);
+            await Utility.sleep(200);
             // Set instance variables
             var wheelTime = 2;
             var ballTime = 3;
@@ -370,7 +393,7 @@ class WidgetGame extends Widget {
             Animation.rotate(this.elements.numbersBackground, backgroundDest, wheelTime);
             Animation.rotate(this.elements.handle, backgroundDest, wheelTime);
             Animation.rotate(this.elements.ballBackground, ballDest, ballTime);
-            await Animation.sleep(3500);
+            await Utility.sleep(3200);
             // Unlock the UI
             this.elements.bet.readOnly = false;
             this.elements.spin.red.disabled = false;
@@ -426,6 +449,7 @@ class PageMain {
 
         this.logs = new WidgetLog(document.getElementById('Log'));
         this.logs.elements.purgeLogs.onclick = this.logs.clearEntries;
+        this.logs.elements.downloadLogs.onclick = this.logs.downloadEntries;
         this.logs.elements.viewSetup.onclick = this.viewSetup;
         this.logs.loadEntries();
         this.logs.hide();
