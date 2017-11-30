@@ -2,7 +2,10 @@
 "use strict";
 HTMLSelectElement.prototype.getSelectedValue = function () {
     return this.options[this.selectedIndex].value;
-}
+};
+Array.prototype.getRandom = function () {
+    return this[Math.floor(Math.random() * this.length)];
+};
 class Animation {
     static addProperty(element, key, value) {
         var apis = ['Webkit', 'Moz', 'O', 'ms', 'Khtml', ''];
@@ -78,25 +81,25 @@ class Widget {
 class WidgetLog extends Widget {
     constructor(parent) {
         super(parent, 'Logs', `
-        <h4 class="card-title">Local log information.<button type="button" class="btn btn-danger btn-sm float-right">Purge logs</button></h4>
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th scope="col">Date</th>
-                    <th scope="col">Time</th>
-                    <th scope="col">User ID</th>
-                    <th scope="col">Group</th>
-                    <th scope="col">Cash</th>
-                    <th scope="col">Bet</th>
-                    <th scope="col">Chosen Color</th>
-                    <th scope="col">Actual Color</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-        <button type="button" class="btn btn-primary">Download logs</button>
-        <button type="button" class="btn btn-secondary">View setup</button>`);
+            <h4 class="card-title">Local log information.<button type="button" class="btn btn-danger btn-sm float-right">Purge logs</button></h4>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">Date</th>
+                        <th scope="col">Time</th>
+                        <th scope="col">User ID</th>
+                        <th scope="col">Group</th>
+                        <th scope="col">Cash</th>
+                        <th scope="col">Bet</th>
+                        <th scope="col">Chosen Color</th>
+                        <th scope="col">Actual Color</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            <button type="button" class="btn btn-primary">Download logs</button>
+            <button type="button" class="btn btn-secondary">View setup</button>`);
         this.elements = {
             table: this.body.querySelectorAll('table')[0],
             body: this.body.querySelectorAll('tbody')[0],
@@ -185,41 +188,41 @@ class WidgetLog extends Widget {
 class WidgetSetup extends Widget {
     constructor(parent) {
         super(parent, 'Setup', `
-        <h4 class="card-title">Please enter your information.</h4>
-        <table class="table table-form">
-            <tbody>
-                <tr>
-                    <td><b>User ID</b></td>
-                    <td class="input-group">
-                        <span class="input-group-addon">#</span>
-                        <input type="number" class="form-control">
-                    </td>
-                </tr>
-                <tr>
-                    <td><b>Starting Cash</b></td>
-                    <td class="input-group">
-                        <span class="input-group-addon">$</span>
-                        <input type="number" class="form-control">
-                    </td>
-                </tr>
-                <tr>
-                    <td><b>Group</b></td>
-                    <td>
-                        <select class="form-control">
-                            <option selected value="A">Group A</option>
-                            <option value="B">Group B</option>
-                            <option value="C">Group C</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2"><button class="btn btn-block btn-primary" type="button">Start</button></td>
-                </tr>
-                <tr>
-                    <td colspan="2"><button class="btn btn-block btn-secondary" type="button">View logs</button></td>
-                </tr>
-            </tbody>
-        </table>`);
+            <h4 class="card-title">Please enter your information.</h4>
+            <table class="table table-form">
+                <tbody>
+                    <tr>
+                        <td><b>User ID</b></td>
+                        <td class="input-group">
+                            <span class="input-group-addon">#</span>
+                            <input type="number" class="form-control">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><b>Starting Cash</b></td>
+                        <td class="input-group">
+                            <span class="input-group-addon">$</span>
+                            <input type="number" class="form-control">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><b>Group</b></td>
+                        <td>
+                            <select class="form-control">
+                                <option selected value="A">Group A</option>
+                                <option value="B">Group B</option>
+                                <option value="C">Group C</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><button class="btn btn-block btn-primary" type="button">Start</button></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><button class="btn btn-block btn-secondary" type="button">View logs</button></td>
+                    </tr>
+                </tbody>
+            </table>`);
         this.elements = {
             user: this.body.querySelectorAll('input')[0],
             cash: this.body.querySelectorAll('input')[1],
@@ -232,7 +235,7 @@ class WidgetSetup extends Widget {
         return () => {
             this.clearAlerts();
             var valid = true;
-            var stats = this.getValues();
+            var stats = this.getInput();
             if (this.elements.user.value === '') {
                 this.addAlert('danger', 'Please enter a user id.');
                 valid = false;
@@ -250,7 +253,7 @@ class WidgetSetup extends Widget {
             return valid;
         };
     }
-    get getValues() {
+    get getInput() {
         return () => {
             return {
                 user: Number(this.elements.user.value),
@@ -263,64 +266,63 @@ class WidgetSetup extends Widget {
 class WidgetGame extends Widget {
     constructor(parent) {
         super(parent, 'Roulette', `
-        <table class="table table-form">
-        <tbody>
-            <tr>
-                <td><b>User ID</b></td>
-                <td class="input-group">
-                    <span class="input-group-addon">#</span>
-                    <input type="number" class="form-control" readonly>
-                </td>
-            </tr>
-            <tr>
-                <td><b>Cash</b></td>
-                <td class="input-group">
-                    <span class="input-group-addon">$</span>
-                    <input type="number" class="form-control" readonly>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2">
-                    <div class="wheel">
-                        <div class="spinner">
-                            <div class="ball">
-                                <span></span>
-                            </div>
-                            <div class="platebg"></div>
-                            <div class="platetop"></div>
-                            <div class="topnodebox">
-                                <div class="silvernode"></div>
-                                <div class="topnode silverbg"></div>
-                                <span class="top silverbg"></span>
-                                <span class="right silverbg"></span>
-                                <span class="down silverbg"></span>
-                                <span class="left silverbg"></span>
-                            </div>
-                            <div class="pieContainer">
-                                <div class="pieBackground"></div>
-                                <div class="hold" id="rSlice0" style="transform: rotate(0deg);"><div class="num">0</div><div class="pie greenbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice1" style="transform: rotate(9.72973deg);"><div class="num">32</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice2" style="transform: rotate(19.4595deg);"><div class="num">15</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice3" style="transform: rotate(29.1892deg);"><div class="num">19</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice4" style="transform: rotate(38.9189deg);"><div class="num">4</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice5" style="transform: rotate(48.6486deg);"><div class="num">21</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice6" style="transform: rotate(58.3784deg);"><div class="num">2</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice7" style="transform: rotate(68.1081deg);"><div class="num">25</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice8" style="transform: rotate(77.8378deg);"><div class="num">17</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice9" style="transform: rotate(87.5676deg);"><div class="num">34</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice10" style="transform: rotate(97.2973deg);"><div class="num">6</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice11" style="transform: rotate(107.027deg);"><div class="num">27</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice12" style="transform: rotate(116.757deg);"><div class="num">13</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice13" style="transform: rotate(126.486deg);"><div class="num">36</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice14" style="transform: rotate(136.216deg);"><div class="num">11</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice15" style="transform: rotate(145.946deg);"><div class="num">30</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice16" style="transform: rotate(155.676deg);"><div class="num">8</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice17" style="transform: rotate(165.405deg);"><div class="num">23</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice18" style="transform: rotate(175.135deg);"><div class="num">10</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice19" style="transform: rotate(184.865deg);"><div class="num">5</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice20" style="transform: rotate(194.595deg);"><div class="num">24</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice21" style="transform: rotate(204.324deg);"><div class="num">16</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice22" style="transform: rotate(214.054deg);"><div class="num">33</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice23" style="transform: rotate(223.784deg);"><div class="num">1</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice24" style="transform: rotate(233.514deg);"><div class="num">20</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice25" style="transform: rotate(243.243deg);"><div class="num">14</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice26" style="transform: rotate(252.973deg);"><div class="num">31</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice27" style="transform: rotate(262.703deg);"><div class="num">9</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice28" style="transform: rotate(272.432deg);"><div class="num">22</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice29" style="transform: rotate(282.162deg);"><div class="num">18</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice30" style="transform: rotate(291.892deg);"><div class="num">29</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice31" style="transform: rotate(301.622deg);"><div class="num">7</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice32" style="transform: rotate(311.351deg);"><div class="num">28</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice33" style="transform: rotate(321.081deg);"><div class="num">12</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice34" style="transform: rotate(330.811deg);"><div class="num">35</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice35" style="transform: rotate(340.541deg);"><div class="num">3</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice36" style="transform: rotate(350.27deg);"><div class="num">26</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div>
+            <table class="table table-form">
+            <tbody>
+                <tr>
+                    <td><b>User ID</b></td>
+                    <td class="input-group">
+                        <span class="input-group-addon">#</span>
+                        <input type="number" class="form-control" readonly>
+                    </td>
+                </tr>
+                <tr>
+                    <td><b>Cash</b></td>
+                    <td class="input-group">
+                        <span class="input-group-addon">$</span>
+                        <input type="number" class="form-control" readonly>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <div class="wheel">
+                            <div class="spinner">
+                                <div class="ball">
+                                    <span></span>
+                                </div>
+                                <div class="platebg"></div>
+                                <div class="platetop"></div>
+                                <div class="topnodebox">
+                                    <div class="silvernode"></div>
+                                    <div class="topnode silverbg"></div>
+                                    <span class="top silverbg"></span>
+                                    <span class="right silverbg"></span>
+                                    <span class="down silverbg"></span>
+                                    <span class="left silverbg"></span>
+                                </div>
+                                <div class="pieContainer">
+                                    <div class="pieBackground"></div>
+                                    <div class="hold" id="rSlice0" style="transform: rotate(0deg);"><div class="num">0</div><div class="pie greenbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice1" style="transform: rotate(9.72973deg);"><div class="num">32</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice2" style="transform: rotate(19.4595deg);"><div class="num">15</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice3" style="transform: rotate(29.1892deg);"><div class="num">19</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice4" style="transform: rotate(38.9189deg);"><div class="num">4</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice5" style="transform: rotate(48.6486deg);"><div class="num">21</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice6" style="transform: rotate(58.3784deg);"><div class="num">2</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice7" style="transform: rotate(68.1081deg);"><div class="num">25</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice8" style="transform: rotate(77.8378deg);"><div class="num">17</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice9" style="transform: rotate(87.5676deg);"><div class="num">34</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice10" style="transform: rotate(97.2973deg);"><div class="num">6</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice11" style="transform: rotate(107.027deg);"><div class="num">27</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice12" style="transform: rotate(116.757deg);"><div class="num">13</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice13" style="transform: rotate(126.486deg);"><div class="num">36</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice14" style="transform: rotate(136.216deg);"><div class="num">11</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice15" style="transform: rotate(145.946deg);"><div class="num">30</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice16" style="transform: rotate(155.676deg);"><div class="num">8</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice17" style="transform: rotate(165.405deg);"><div class="num">23</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice18" style="transform: rotate(175.135deg);"><div class="num">10</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice19" style="transform: rotate(184.865deg);"><div class="num">5</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice20" style="transform: rotate(194.595deg);"><div class="num">24</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice21" style="transform: rotate(204.324deg);"><div class="num">16</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice22" style="transform: rotate(214.054deg);"><div class="num">33</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice23" style="transform: rotate(223.784deg);"><div class="num">1</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice24" style="transform: rotate(233.514deg);"><div class="num">20</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice25" style="transform: rotate(243.243deg);"><div class="num">14</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice26" style="transform: rotate(252.973deg);"><div class="num">31</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice27" style="transform: rotate(262.703deg);"><div class="num">9</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice28" style="transform: rotate(272.432deg);"><div class="num">22</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice29" style="transform: rotate(282.162deg);"><div class="num">18</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice30" style="transform: rotate(291.892deg);"><div class="num">29</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice31" style="transform: rotate(301.622deg);"><div class="num">7</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice32" style="transform: rotate(311.351deg);"><div class="num">28</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice33" style="transform: rotate(321.081deg);"><div class="num">12</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice34" style="transform: rotate(330.811deg);"><div class="num">35</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice35" style="transform: rotate(340.541deg);"><div class="num">3</div><div class="pie redbg" style="transform: rotate(9.73deg);"></div></div><div class="hold" id="rSlice36" style="transform: rotate(350.27deg);"><div class="num">26</div><div class="pie greybg" style="transform: rotate(9.73deg);"></div></div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2">
-                    <div class="input-group">
-                        <span class="input-group-btn">
-                            <button class="btn btn-danger" type="button">Bet on red</button>
-                        </span>
-                        <span class="input-group-addon">$</span>
-                        <input type="number" class="form-control" placeholder="Bet">
-                        <span class="input-group-btn">
-                            <button class="btn btn-dark" type="button">Bet on black</button>
-                        </span>
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-        </table>
-        `);
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <div class="input-group">
+                            <span class="input-group-btn">
+                                <button class="btn btn-danger" type="button">Bet on red</button>
+                            </span>
+                            <span class="input-group-addon">$</span>
+                            <input type="number" class="form-control" placeholder="Bet">
+                            <span class="input-group-btn">
+                                <button class="btn btn-dark" type="button">Bet on black</button>
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+            </table>`);
         this.elements = {
             user: this.body.querySelectorAll('input')[0],
             cash: this.body.querySelectorAll('input')[1],
@@ -344,30 +346,25 @@ class WidgetGame extends Widget {
             this.wheel.locations[this.wheel.order[i]] = i * temparc;
         }
     }
-    get spinRandom() {
-        return async () => {
-            var number = this.wheel.order[Math.floor(Math.random() * this.wheel.order.length)];
+    get spinColor() {
+        return async (color) => {
+            if (color === 'R') {
+                var number = this.wheel.red.getRandom();
+            } else if (color === 'B') {
+                var number = this.wheel.black.getRandom();
+            } else if (color === 'G') {
+                var number = 0;
+            } else {
+                var number = this.wheel.order.getRandom();
+            }
             await this.spinTo(number);
             if (this.wheel.red.includes(number)) {
-                return 'red';
+                return 'R';
             } else if (this.wheel.black.includes(number)) {
-                return 'black';
+                return 'B';
+            } else {
+                return 'G';
             }
-            return 'green';
-        };
-    }
-    get spinRed() {
-        return async () => {
-            var number = this.wheel.red[Math.floor(Math.random() * this.wheel.red.length)];
-            await this.spinTo(number);
-            return 'red'
-        };
-    }
-    get spinBlack() {
-        return async () => {
-            var number = this.wheel.black[Math.floor(Math.random() * this.wheel.black.length)];
-            await this.spinTo(number);
-            return 'black'
         };
     }
     get spinTo() {
@@ -404,7 +401,7 @@ class WidgetGame extends Widget {
         return () => {
             this.clearAlerts();
             var valid = true;
-            var stats = this.getValues();
+            var stats = this.getInput();
             if (this.elements.cash.value === '' || stats.cash <= 0) {
                 this.addAlert('danger', 'You have no money left to bet.');
                 valid = false;
@@ -421,12 +418,7 @@ class WidgetGame extends Widget {
             return valid;
         };
     }
-    get addCash() {
-        return (cash) => {
-            this.elements.cash.value = Number(this.elements.cash.value) + cash;
-        }
-    }
-    get getValues() {
+    get getInput() {
         return () => {
             return {
                 user: Number(this.elements.user.value),
@@ -443,8 +435,8 @@ class PageMain {
         this.setup.elements.viewLogs.onclick = this.viewLogs;
 
         this.game = new WidgetGame(document.getElementById('Game'));
-        this.game.elements.spin.red.onclick = this.pickRed;
-        this.game.elements.spin.black.onclick = this.pickBlack;
+        this.game.elements.spin.red.onclick = this.handleSpin('R');
+        this.game.elements.spin.black.onclick = this.handleSpin('B');
         this.game.hide();
 
         this.logs = new WidgetLog(document.getElementById('Log'));
@@ -453,13 +445,28 @@ class PageMain {
         this.logs.elements.viewSetup.onclick = this.viewSetup;
         this.logs.loadEntries();
         this.logs.hide();
+
+        this.stats = {
+            user: 0,
+            group: 'A',
+            cash: 0,
+            generator: new SpinGenerator()
+        };
     }
     get performSetup() {
         return () => {
             if (this.setup.validate()) {
-                var stats = this.setup.getValues();
-                this.game.elements.user.value = stats.user;
-                this.game.elements.cash.value = stats.cash;
+                var input = this.setup.getInput();
+                this.stats.user = input.user;
+                this.stats.group = input.group;
+                this.stats.cash = input.cash;
+                if (input.group === 'B') {
+                    this.stats.generator = new SpinGenerator('RRBBRBBR' + 'RRRRRRRR' + 'RRBBRBBR', 'R');
+                } else {
+                    this.stats.generator = new SpinGenerator('RBRBBRRB' + 'BBBBBBBB' + 'RBRBBRRB', 'B');
+                }
+                this.game.elements.user.value = input.user;
+                this.game.elements.cash.value = input.cash;
                 this.setup.hide();
                 this.game.show();
             }
@@ -477,31 +484,40 @@ class PageMain {
             this.logs.hide();
         };
     }
-    get pickRed() {
-        return () => {
-            this.performSpin('red');
-        };
-    }
-    get pickBlack() {
-        return () => {
-            this.performSpin('black');
-        };
-    }
-    get performSpin() {
-        return async (pick) => {
-            if (this.game.validate()) {
-                var stats = this.game.getValues();
-                var result = await this.game.spinRandom();
-                if (result === pick) {
-                    this.game.addCash(stats.bet);
-                    this.game.addAlert('success', "You've won! Gained $" + stats.bet + ".");
-                } else {
-                    this.game.addCash(-stats.bet);
-                    this.game.addAlert('warning', 'Try again. Lost $' + stats.bet + '.');
+    get handleSpin() {
+        return (pick) => {
+            return async () => {
+                if (this.game.validate()) {
+                    var input = this.game.getInput();
+                    var result = await this.game.spinColor(this.stats.generator.next());
+                    if (result === pick) {
+                        this.stats.cash += input.bet;
+                        this.game.addAlert('success', "You've won! Gained $" + input.bet + ".");
+                    } else {
+                        this.stats.cash -= input.bet;
+                        this.game.addAlert('warning', 'Try again. Lost $' + input.bet + '.');
+                    }
+                    this.game.elements.cash.value = this.stats.cash;
+                    this.logs.addEntry(this.stats.user, this.stats.group, this.stats.cash, input.bet, pick, result);
                 }
-                this.logs.addEntry(stats.user, this.setup.getValues().group, stats.cash, stats.bet, pick, result)
-            }
+            };
         };
+    }
+}
+class SpinGenerator {
+    constructor(results, backup) {
+        this.results = results || '';
+        this.backup = backup;
+    }
+    get next() {
+        return () => {
+            if (this.results.length === 0) {
+                return this.backup;
+            }
+            var char = this.results[0];
+            this.results = this.results.substr(1);
+            return char;
+        }
     }
 }
 var debug = new PageMain();
