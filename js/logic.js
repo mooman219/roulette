@@ -189,7 +189,7 @@ class WidgetLog extends Widget {
             if (entry.pick === entry.result) {
                 row.className = 'table-success';
             } else {
-                row.className = 'table-warning';
+                row.className = 'table-danger';
             }
         }
     }
