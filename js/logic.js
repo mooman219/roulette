@@ -283,7 +283,7 @@ class WidgetSetup extends Widget {
 class WidgetHistory extends Widget {
     constructor(parent) {
         super(parent, 'Recent Spins', `
-            <table class="table table-dark">
+            <table class="table table-form table-dark">
                 <tbody>
                 </tbody>
             </table>`);
