@@ -108,7 +108,7 @@ class WidgetLog extends Widget {
             <button type="button" class="btn btn-secondary">View setup</button>`);
         this.elements = {
             table: this.body.querySelectorAll('table')[0],
-            body: this.body.querySelectorAll('tbody')[0],
+            tbody: this.body.querySelectorAll('tbody')[0],
             purgeLogs: this.body.querySelectorAll('button')[0],
             downloadLogs: this.body.querySelectorAll('button')[1],
             viewSetup: this.body.querySelectorAll('button')[2],
@@ -146,8 +146,8 @@ class WidgetLog extends Widget {
     get clearEntries() {
         return () => {
             var tbody = document.createElement('tbody');
-            this.elements.table.replaceChild(tbody, this.elements.body);
-            this.elements.body = tbody;
+            this.elements.table.replaceChild(tbody, this.elements.tbody);
+            this.elements.tbody = tbody;
             window.localStorage.setItem('log', JSON.stringify([]));
         }
     }
@@ -166,7 +166,7 @@ class WidgetLog extends Widget {
     }
     get appendRow() {
         return (entry) => {
-            var row = this.elements.body.insertRow(this.elements.body.rows.length);
+            var row = this.elements.tbody.insertRow(this.elements.tbody.rows.length);
             row.insertCell(0).innerHTML = entry.date;
             row.insertCell(1).innerHTML = entry.time;
             row.insertCell(2).innerHTML = '#' + entry.user;
@@ -278,20 +278,23 @@ class WidgetHistory extends Widget {
             </table>`);
         this.elements = {
             table: this.body.querySelectorAll('table')[0],
-            body: this.body.querySelectorAll('tbody')[0],
+            tbody: this.body.querySelectorAll('tbody')[0],
         };
         this.setPadding('0rem', '0rem', '0rem', '0rem');
     }
     get clearEntries() {
         return () => {
             var tbody = document.createElement('tbody');
-            this.elements.table.replaceChild(tbody, this.elements.body);
-            this.elements.body = tbody;
+            this.elements.table.replaceChild(tbody, this.elements.tbody);
+            this.elements.tbody = tbody;
         }
     }
     get appendRow() {
         return (color) => {
-            var row = this.elements.body.insertRow(this.elements.body.rows.length);
+            if (this.elements.table.rows.length >= 20) {
+                this.elements.table.deleteRow(0);
+            }
+            var row = this.elements.tbody.insertRow(this.elements.tbody.rows.length);
             if (color === 'R') {
                 row.className = 'bg-danger';
                 row.insertCell(0).innerHTML = 'Red';
