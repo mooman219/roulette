@@ -58,7 +58,18 @@ class Widget {
         this.alerts = this.parent.querySelectorAll('div')[3];
         this.body = this.parent.querySelectorAll('div')[4];
     }
-    get setPadding() {
+    get setBodyScrollHeight() {
+        return (height) => {
+            if (height) {
+                this.cardBody.style.maxHeight = height;
+                this.cardBody.style.overflow = 'auto';
+            } else {
+                this.cardBody.style.maxHeight = '';
+                this.cardBody.style.overflow = '';
+            }
+        };
+    }
+    get setBodyPadding() {
         return (top, bottom, left, right) => {
             this.cardBody.style.padding = top + ' ' + right + ' ' + bottom + ' ' + left;
         };
@@ -280,7 +291,8 @@ class WidgetHistory extends Widget {
             table: this.body.querySelectorAll('table')[0],
             tbody: this.body.querySelectorAll('tbody')[0],
         };
-        this.setPadding('0rem', '0rem', '0rem', '0rem');
+        this.setBodyPadding('0rem', '0rem', '0rem', '0rem');
+        this.setBodyScrollHeight('714px');
     }
     get clearEntries() {
         return () => {
@@ -291,9 +303,6 @@ class WidgetHistory extends Widget {
     }
     get appendRow() {
         return (color) => {
-            if (this.elements.table.rows.length >= 20) {
-                this.elements.table.deleteRow(0);
-            }
             var row = this.elements.tbody.insertRow(this.elements.tbody.rows.length);
             if (color === 'R') {
                 row.className = 'bg-danger';
@@ -304,6 +313,7 @@ class WidgetHistory extends Widget {
                 row.className = 'bg-success';
                 row.insertCell(0).innerHTML = 'Green';
             }
+            this.cardBody.scrollTop = this.cardBody.scrollHeight;
         }
     }
 }
