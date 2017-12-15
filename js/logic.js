@@ -47,15 +47,21 @@ class Widget {
     constructor(parent, title, body) {
         this.parent = parent;
         this.parent.innerHTML = `
-        <div class="card">
-            <div class="card-header text-center">${title}</div>
-            <div class="card-body">
-                <div></div>
-                <div>${body}</div>
-            </div>
-        </div>`;
+            <div class="card">
+                <div class="card-header text-center">${title}</div>
+                <div class="card-body">
+                    <div></div>
+                    <div>${body}</div>
+                </div>
+            </div>`;
+        this.cardBody = this.parent.querySelectorAll('div')[2];
         this.alerts = this.parent.querySelectorAll('div')[3];
         this.body = this.parent.querySelectorAll('div')[4];
+    }
+    get setPadding() {
+        return (top, bottom, left, right) => {
+            this.cardBody.style.padding = top + ' ' + right + ' ' + bottom + ' ' + left;
+        };
     }
     get show() {
         return () => {
@@ -263,6 +269,41 @@ class WidgetSetup extends Widget {
         }
     }
 }
+class WidgetHistory extends Widget {
+    constructor(parent) {
+        super(parent, 'Recent Spins', `
+            <table class="table table-dark table-sm">
+                <tbody>
+                </tbody>
+            </table>`);
+        this.elements = {
+            table: this.body.querySelectorAll('table')[0],
+            body: this.body.querySelectorAll('tbody')[0],
+        };
+        this.setPadding('0rem', '0rem', '0rem', '0rem');
+    }
+    get clearEntries() {
+        return () => {
+            var tbody = document.createElement('tbody');
+            this.elements.table.replaceChild(tbody, this.elements.body);
+            this.elements.body = tbody;
+        }
+    }
+    get appendRow() {
+        return (color) => {
+            var row = this.elements.body.insertRow(this.elements.body.rows.length);
+            if (color === 'R') {
+                row.className = 'bg-danger';
+                row.insertCell(0).innerHTML = 'Red';
+            } else if (color === 'B') {
+                row.insertCell(0).innerHTML = 'Black';
+            } else if (color === 'G') {
+                row.className = 'bg-success';
+                row.insertCell(0).innerHTML = 'Green';
+            }
+        }
+    }
+}
 class WidgetGame extends Widget {
     constructor(parent) {
         super(parent, 'Roulette', `
@@ -434,6 +475,9 @@ class PageMain {
         this.setup.elements.submit.onclick = this.performSetup;
         this.setup.elements.viewLogs.onclick = this.viewLogs;
 
+        this.history = new WidgetHistory(document.getElementById('History'));
+        this.history.hide();
+
         this.game = new WidgetGame(document.getElementById('Game'));
         this.game.elements.spin.red.onclick = this.handleSpin('R');
         this.game.elements.spin.black.onclick = this.handleSpin('B');
@@ -468,6 +512,7 @@ class PageMain {
                 this.game.elements.user.value = input.user;
                 this.game.elements.cash.value = input.cash;
                 this.setup.hide();
+                this.history.show();
                 this.game.show();
             }
         };
@@ -490,6 +535,7 @@ class PageMain {
                 if (this.game.validate()) {
                     var input = this.game.getInput();
                     var result = await this.game.spinColor(this.stats.generator.next());
+                    this.history.appendRow(result);
                     if (result === pick) {
                         this.stats.cash += input.bet;
                         this.game.addAlert('success', "You've won! Gained $" + input.bet + ".");
