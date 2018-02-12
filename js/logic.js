@@ -302,16 +302,16 @@ class WidgetHistory extends Widget {
         }
     }
     get appendRow() {
-        return (color) => {
+        return (result) => {
             var row = this.elements.tbody.insertRow(this.elements.tbody.rows.length);
-            if (color === 'R') {
+            if (result.color === 'R') {
                 row.className = 'bg-danger';
-                row.insertCell(0).innerHTML = 'Red';
-            } else if (color === 'B') {
-                row.insertCell(0).innerHTML = 'Black';
-            } else if (color === 'G') {
+                row.insertCell(0).innerHTML = 'Red ' + result.number;
+            } else if (result.color === 'B') {
+                row.insertCell(0).innerHTML = 'Black ' + result.number;
+            } else if (result.color === 'G') {
                 row.className = 'bg-success';
-                row.insertCell(0).innerHTML = 'Green';
+                row.insertCell(0).innerHTML = 'Green ' + result.number;
             }
             this.cardBody.scrollTop = this.cardBody.scrollHeight;
         }
@@ -413,11 +413,11 @@ class WidgetGame extends Widget {
             }
             await this.spinTo(number);
             if (this.wheel.red.includes(number)) {
-                return 'R';
+                return { color: 'R', number: number };
             } else if (this.wheel.black.includes(number)) {
-                return 'B';
+                return { color: 'B', number: number };
             } else {
-                return 'G';
+                return { color: 'G', number: number };
             }
         };
     }
@@ -549,7 +549,7 @@ class PageMain {
                     var input = this.game.getInput();
                     var result = await this.game.spinColor(this.stats.generator.next());
                     this.history.appendRow(result);
-                    if (result === pick) {
+                    if (result.color === pick) {
                         this.stats.cash += input.bet;
                         this.game.addAlert('success', "You've won! Gained $" + input.bet + ".");
                     } else {
