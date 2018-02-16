@@ -3,9 +3,6 @@
 HTMLSelectElement.prototype.getSelectedValue = function () {
     return this.options[this.selectedIndex].value;
 };
-Array.prototype.getRandom = function () {
-    return this[Math.floor(Math.random() * this.length)];
-};
 class Animation {
     static addProperty(element, key, value) {
         var apis = ['Webkit', 'Moz', 'O', 'ms', 'Khtml', ''];
@@ -41,6 +38,9 @@ class Utility {
         var event = document.createEvent('MouseEvents');
         event.initEvent('click', true, true);
         pom.dispatchEvent(event);
+    }
+    static random(array) {
+        return array[Math.floor(Math.random() * array.length)];
     }
 }
 class Widget {
@@ -180,7 +180,7 @@ class WidgetLog extends Widget {
             var row = this.elements.tbody.insertRow(this.elements.tbody.rows.length);
             row.insertCell(0).innerHTML = entry.date;
             row.insertCell(1).innerHTML = entry.time;
-            row.insertCell(2).innerHTML = '#' + entry.user;
+            row.insertCell(2).innerHTML = entry.user;
             row.insertCell(3).innerHTML = entry.group;
             row.insertCell(4).innerHTML = '$' + entry.cash;
             row.insertCell(5).innerHTML = '$' + entry.bet;
@@ -211,8 +211,7 @@ class WidgetSetup extends Widget {
                     <tr>
                         <td><b>User ID</b></td>
                         <td class="input-group">
-                            <span class="input-group-addon">#</span>
-                            <input type="number" class="form-control">
+                            <input type="text" class="form-control">
                         </td>
                     </tr>
                     <tr>
@@ -253,11 +252,11 @@ class WidgetSetup extends Widget {
             this.clearAlerts();
             var valid = true;
             var stats = this.getInput();
-            if (this.elements.user.value === '') {
+            if (stats.user === '') {
                 this.addAlert('danger', 'Please enter a user id.');
                 valid = false;
-            } else if (stats.user < 0) {
-                this.addAlert('danger', 'Please enter a positive user id.');
+            } else if (!stats.user.match(/^[A-Z0-9]+$/)) {
+                this.addAlert('danger', 'User id can only contain numbers and uppercase letters.');
                 valid = false;
             }
             if (this.elements.cash.value === '') {
@@ -273,7 +272,7 @@ class WidgetSetup extends Widget {
     get getInput() {
         return () => {
             return {
-                user: Number(this.elements.user.value),
+                user: this.elements.user.value,
                 cash: Number(this.elements.cash.value),
                 group: this.elements.group.getSelectedValue(),
             };
@@ -325,8 +324,7 @@ class WidgetGame extends Widget {
                 <tr>
                     <td><b>User ID</b></td>
                     <td class="input-group">
-                        <span class="input-group-addon">#</span>
-                        <input type="number" class="form-control" readonly>
+                        <input type="text" class="form-control" readonly>
                     </td>
                 </tr>
                 <tr>
@@ -403,13 +401,13 @@ class WidgetGame extends Widget {
     get spinColor() {
         return async (color) => {
             if (color === 'R') {
-                var number = this.wheel.red.getRandom();
+                var number = Utility.random(this.wheel.red);
             } else if (color === 'B') {
-                var number = this.wheel.black.getRandom();
+                var number = Utility.random(this.wheel.black);
             } else if (color === 'G') {
                 var number = 0;
             } else {
-                var number = this.wheel.order.getRandom();
+                var number = Utility.random(this.wheel.order);
             }
             await this.spinTo(number);
             if (this.wheel.red.includes(number)) {
@@ -475,7 +473,7 @@ class WidgetGame extends Widget {
     get getInput() {
         return () => {
             return {
-                user: Number(this.elements.user.value),
+                user: this.elements.user.value,
                 cash: Number(this.elements.cash.value),
                 bet: Number(this.elements.bet.value),
             };
@@ -557,7 +555,7 @@ class PageMain {
                         this.game.addAlert('warning', 'Try again. Lost $' + input.bet + '.');
                     }
                     this.game.elements.cash.value = this.stats.cash;
-                    this.logs.addEntry(this.stats.user, this.stats.group, this.stats.cash, input.bet, pick, result);
+                    this.logs.addEntry(this.stats.user, this.stats.group, this.stats.cash, input.bet, pick, result.color);
                 }
             };
         };
