@@ -303,15 +303,17 @@ class WidgetHistory extends Widget {
     get appendRow() {
         return (result) => {
             var row = this.elements.tbody.insertRow(this.elements.tbody.rows.length);
+            var text = '#' + (row.rowIndex + 1) + ' ';
             if (result.color === 'R') {
                 row.className = 'bg-danger';
-                row.insertCell(0).innerHTML = 'Red ' + result.number;
+                text += 'Red';
             } else if (result.color === 'B') {
-                row.insertCell(0).innerHTML = 'Black ' + result.number;
+                text += 'Black';
             } else if (result.color === 'G') {
                 row.className = 'bg-success';
-                row.insertCell(0).innerHTML = 'Green ' + result.number;
+                text += 'Green';
             }
+            row.insertCell(0).innerHTML = text + ' ' + result.number;
             this.cardBody.scrollTop = this.cardBody.scrollHeight;
         }
     }
