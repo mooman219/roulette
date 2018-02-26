@@ -515,10 +515,12 @@ class PageMain {
                 this.stats.user = input.user;
                 this.stats.group = input.group;
                 this.stats.cash = input.cash;
-                if (input.group === 'B') {
-                    this.stats.generator = new SpinGenerator('RRBBRBBR' + 'RRRRRRRR' + 'RRBBRBBR', 'R');
+                if (input.group === 'A') {
+                    this.stats.generator = new SpinGenerator('RBRBBRBR' + 'BBBBBBBB' + 'RRBRBBRB', 'R');
+                } else if (input.group === 'B') {
+                    this.stats.generator = new SpinGenerator('BRBRRBRB' + 'RRRRRRRR' + 'BBRBRRBR', 'B');
                 } else {
-                    this.stats.generator = new SpinGenerator('RBRBBRRB' + 'BBBBBBBB' + 'RBRBBRRB', 'B');
+                    this.stats.generator = new SpinGenerator('RBRBBRBR' + 'BRBRRBRB' + 'RRBRBBRB', 'R');
                 }
                 this.game.elements.user.value = input.user;
                 this.game.elements.cash.value = input.cash;
